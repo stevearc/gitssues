@@ -1,0 +1,17 @@
+.gitssues.btnContainer {
+  margin-bottom: 10px;
+}
+.gitssues.btnContainer a {
+  margin-right: 10px;
+}
+.gitssues-comments {
+  width: 900px;
+  padding: 10px;
+}
+.gitssues-comments > * {
+  width: 900px;
+  margin: 10px;
+}
+.gitssues-add-link {
+  display: inline-block;
+}

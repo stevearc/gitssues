@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+  "name": "Gitssues",
+  "description": "This extension adds UI functionality to Github Issues.",
+  "version": "1.0",
+  "author": "Steven Arcangeli",
+
+  "permissions": [
+    "https://github.com/",
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://github.com/*/*/issues",
+        "https://github.com/*/*/issues*"
+      ],
+      "js": [
+        "lib/jquery-1.11.1.min.js",
+        "lib/handlebars-v1.3.0.js",
+        "lib/promise-5.0.0.min.js",
+        "github.js",
+        "template.js",
+        "gitssues.js"
+      ],
+      "css": ["gitssues.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    "token.html",
+    "comment.html"
+  ]
+}
