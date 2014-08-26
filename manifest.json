@@ -13,7 +13,11 @@
     {
       "matches": [
         "https://github.com/*/*/issues",
-        "https://github.com/*/*/issues*"
+        "https://github.com/*/*/issues*",
+        "https://github.com/*/*/milestones",
+        "https://github.com/*/*/milestones*",
+        "https://github.com/*/*/labels",
+        "https://github.com/*/*/labels*"
       ],
       "js": [
         "lib/jquery-1.11.1.min.js",

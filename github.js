@@ -1,3 +1,9 @@
+var getRepoAndUri = function() {
+  var repo = window.location.pathname.match(/[^\/]+\/[^\/]+/)[0];
+  var curUri = window.location.pathname.substr(repo.length + 1) + window.location.search;
+  return [repo, curUri];
+}
+
 var renderBodyMarkdown = function(data) {
   return renderMarkdown(data.body).then(function(text) {
     data.bodyMarkdown = text;

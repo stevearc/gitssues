@@ -12,8 +12,9 @@ var addButtons = function() {
   } else {
     btnContainer.empty();
   }
-  var repo = window.location.pathname.match(/[^\/]+\/[^\/]+/)[0];
-  var curUri = window.location.pathname.substr(repo.length+8) + window.location.search;
+  var repoUri = getRepoAndUri();
+  var repo = repoUri[0];
+  var curUri = repoUri[1];
 
   var title, classes, uri, newButton;
   var anySelected = false;
@@ -21,7 +22,7 @@ var addButtons = function() {
     buttons = data.buttons;
     if (buttons == null) {
       buttons = {
-        'My issues': '/assigned/' + getMeta('octolytics-actor-login')
+        'My issues': '/issues/assigned/' + getMeta('octolytics-actor-login')
       };
     }
     for (title in buttons) {
@@ -31,7 +32,7 @@ var addButtons = function() {
         classes = 'selected';
         anySelected = true;
       }
-      newButton = $('<a href="/' + repo + '/issues' + uri + '" class="' + classes + ' minibutton">' + title + '</a>');
+      newButton = $('<a href="/' + repo + uri + '" class="' + classes + ' minibutton">' + title + '</a>');
       btnContainer.append(newButton);
     }
     if (!anySelected || true) {
@@ -53,8 +54,9 @@ var addButtons = function() {
         .submit(function(e) {
           e.preventDefault();
           if (this.title.value != null) {
-            var repo = window.location.pathname.match(/[^\/]+\/[^\/]+/)[0];
-            var curUri = window.location.pathname.substr(repo.length+8) + window.location.search;
+            var repoUri = getRepoAndUri();
+            var repo = repoUri[0];
+            var curUri = repoUri[1];
             buttons[this.title.value] = curUri;
             chrome.storage.sync.set({'buttons': buttons}, addButtons);
           }
@@ -66,7 +68,7 @@ var addButtons = function() {
 };
 
 var addClickHandlers = function() {
-  var repo = window.location.pathname.match(/[^\/]+\/[^\/]+/)[0];
+  var repo = getRepoAndUri()[0];
   $('#js-repo-pjax-container li[data-issue-id]').each(function() {
     var t = $(this);
     // Don't add duplicate click handlers.
@@ -135,13 +137,18 @@ $(document).ready(function() {
   });
 
   // Github uses pjax, so we have to watch for url changes.
-  var href, hash;
+  var href, hash, curUri;
   function detectLocationChange() {
     if (location.href !== href || location.hash !== hash) {
       href = location.href;
       hash = location.hash;
-      addButtons();
-      addClickHandlers();
+      curUri = getRepoAndUri()[1];
+      if (curUri.match(/^\/(issues|labels|milestones)/) != null) {
+        addButtons();
+        addClickHandlers();
+      } else {
+        $('#gitssues-container').remove();
+      }
     }
     setTimeout(detectLocationChange, 200);
   }
