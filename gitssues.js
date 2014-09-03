@@ -143,7 +143,7 @@ $(document).ready(function() {
       href = location.href;
       hash = location.hash;
       curUri = getRepoAndUri()[1];
-      if (curUri.match(/^\/(issues|labels|milestones)/) != null) {
+      if (curUri.match(/^\/(issues|pull|labels|milestones)/) != null) {
         addButtons();
         addClickHandlers();
       } else {

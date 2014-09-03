@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Gitssues",
   "description": "This extension adds UI functionality to Github Issues.",
-  "version": "1.1",
+  "version": "1.2",
   "author": "Steven Arcangeli",
 
   "permissions": [
@@ -12,11 +12,9 @@
   "content_scripts": [
     {
       "matches": [
-        "https://github.com/*/*/issues",
         "https://github.com/*/*/issues*",
-        "https://github.com/*/*/milestones",
+        "https://github.com/*/*/pull*",
         "https://github.com/*/*/milestones*",
-        "https://github.com/*/*/labels",
         "https://github.com/*/*/labels*"
       ],
       "js": [
