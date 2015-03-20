@@ -32,11 +32,11 @@ var addButtons = function() {
         classes = 'selected';
         anySelected = true;
       }
-      newButton = $('<a href="/' + repo + uri + '" class="' + classes + ' minibutton">' + title + '</a>');
+      newButton = $('<a href="/' + repo + uri + '" class="' + classes + ' btn btn-sm">' + title + '</a>');
       btnContainer.append(newButton);
     }
     if (!anySelected || true) {
-      var editButton = $('<a class="minibutton primary">+/-</a>').click(function() {
+      var editButton = $('<a class="btn btn-sm btn-primary">+/-</a>').click(function() {
         editButton.remove();
         btnContainer.find('a').each(function() {
           (function(btn) {
