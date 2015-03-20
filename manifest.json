@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Gitssues",
   "description": "This extension adds UI functionality to Github Issues.",
-  "version": "1.2",
+  "version": "1.3",
   "author": "Steven Arcangeli",
 
   "permissions": [
