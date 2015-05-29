@@ -69,7 +69,7 @@ var addButtons = function() {
 
 var addClickHandlers = function() {
   var repo = getRepoAndUri()[0];
-  $('#js-repo-pjax-container li[data-issue-id]').each(function() {
+  $('#js-repo-pjax-container li.js-issue-row').each(function() {
     var t = $(this);
     // Don't add duplicate click handlers.
     if (t.attr('gitssues-click')) {
@@ -81,7 +81,7 @@ var addClickHandlers = function() {
       if (e.target.tagName === 'A' || e.target.parentElement.tagName === 'A') {
         return;
       }
-      var issue = t.attr('data-issue-id');
+      var issue = t.attr('id').slice('issue_'.length);
       var container = $('#gitssues-comments-' + issue);
       // Remove existing container before opening a new one.
       if (container.length > 0) {
