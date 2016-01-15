@@ -1,16 +1,21 @@
 var TOKEN = null;
+var btnContainer = null
 
-var addButtons = function() {
-  var container = $('#js-repo-pjax-container');
+var addButtons = function(force) {
+  var container = $('#js-repo-pjax-container .repository-content');
   if (container == null) {
     return;
   }
-  var btnContainer = $('#gitssues-container');
-  if (btnContainer.length == 0) {
+  btnContainer = $('#gitssues-container');
+  if (btnContainer.length > 0) {
+    if (force) {
+      btnContainer.empty();
+    } else {
+      return;
+    }
+  } else {
     btnContainer = $('<div id="gitssues-container" class="gitssues btnContainer">');
     container.before(btnContainer);
-  } else {
-    btnContainer.empty();
   }
   var repoUri = getRepoAndUri();
   var repo = repoUri[0];
@@ -18,15 +23,19 @@ var addButtons = function() {
 
   var title, classes, uri, newButton;
   var anySelected = false;
-  chrome.storage.sync.get('buttons', function(data) {
-    buttons = data.buttons;
+  chrome.storage.sync.get(repo, function(data) {
+    var repoData = data[repo];
+    if (repoData == null) {
+      repoData = {};
+    }
+    var buttons = repoData.buttons;
     if (buttons == null) {
-      buttons = {
+      repoData.buttons = {
         'My issues': '/issues/assigned/' + getMeta('octolytics-actor-login')
       };
     }
-    for (title in buttons) {
-      uri = buttons[title];
+    for (title in repoData.buttons) {
+      uri = repoData.buttons[title];
       classes = '';
       if (uri === curUri) {
         classes = 'selected';
@@ -42,8 +51,10 @@ var addButtons = function() {
           (function(btn) {
             btn.click(function(e) {
               e.preventDefault();
-              delete buttons[btn.text().substr(1)];
-              chrome.storage.sync.set({'buttons': buttons}, addButtons);
+              delete repoData.buttons[btn.text().substr(1)];
+              setData = {}
+              setData[repo] = repoData
+              chrome.storage.sync.set(setData, function() { addButtons(true) });
             })
             .addClass('danger')
             .text('-' + btn.text());
@@ -57,8 +68,10 @@ var addButtons = function() {
             var repoUri = getRepoAndUri();
             var repo = repoUri[0];
             var curUri = repoUri[1];
-            buttons[this.title.value] = curUri;
-            chrome.storage.sync.set({'buttons': buttons}, addButtons);
+            repoData.buttons[this.title.value] = curUri;
+            setData = {}
+            setData[repo] = repoData
+            chrome.storage.sync.set(setData, function() { addButtons(true) });
           }
         });
       $('<input name="title" type="text" size="20">').appendTo(form).focus();
@@ -88,11 +101,10 @@ var addClickHandlers = function() {
         container.remove();
         return;
       }
-      var url = 'https://api.github.com/repos/' + repo + '/issues/' + issue;
       var container = $('<li id="gitssues-comments-' + issue + '" class="read table-list-item gitssues-comments">');
       container.append($('<div style="text-align: center"><img alt="" width="32" height="32" src="https://assets-cdn.github.com/images/spinners/octocat-spinner-64.gif"></div>'));
       t.after(container);
-      fetchAllComments(url).then(function(comments) {
+      fetchAllComments(repo, issue).then(function(comments) {
         var renderComment = function(parameters) {
           return render('comment.html', parameters);
         }
@@ -137,18 +149,14 @@ $(document).ready(function() {
   });
 
   // Github uses pjax, so we have to watch for url changes.
-  var href, hash, curUri;
+  var curUri;
   function detectLocationChange() {
-    if (location.href !== href || location.hash !== hash) {
-      href = location.href;
-      hash = location.hash;
-      curUri = getRepoAndUri()[1];
-      if (curUri.match(/^\/(issues|pull|labels|milestones)/) != null) {
-        addButtons();
-        addClickHandlers();
-      } else {
-        $('#gitssues-container').remove();
-      }
+    curUri = getRepoAndUri()[1];
+    if (curUri.match(/^\/(issues|pull|labels|milestones)/) != null) {
+      addButtons();
+      addClickHandlers();
+    } else {
+      $('#gitssues-container').remove();
     }
     setTimeout(detectLocationChange, 200);
   }

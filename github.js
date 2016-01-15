@@ -4,58 +4,21 @@ var getRepoAndUri = function() {
   return [repo, curUri];
 }
 
-var renderBodyMarkdown = function(data) {
-  return renderMarkdown(data.body).then(function(text) {
-    data.bodyMarkdown = text;
-    return data;
-  });
-}
-
-function renderMarkdown(text) {
-  return new Promise(function(fulfill, reject) {
-    var repoId = getMeta('octolytics-dimension-repository_id');
-    var csrfToken = getMeta('csrf-token');
-    $.ajax({
-      type: "POST",
-      url: '/preview?repository=' + repoId,
-      headers: {
-        'X-CSRF-Token': csrfToken
-      },
-      data: {
-        text: text
-      },
-      success: fulfill,
-      error: reject
-    });
-  })
-}
-
 var COMMENT_CACHE = {};
-var fetchAllComments = function(url) {
-  if (COMMENT_CACHE[url] != null) {
+var fetchAllComments = function(repo, issue) {
+  var key = repo + ':' + issue;
+  if (COMMENT_CACHE[key] != null) {
     return new Promise(function(fulfill, reject) {
-      fulfill(COMMENT_CACHE[url]);
+      fulfill(COMMENT_CACHE[key]);
     });
   }
-  var allComments = [];
-  return Promise.resolve($.get(url))
-    .then(renderBodyMarkdown)
-    .then(function(data) {
-      allComments.push(data);
-      if (data.comments === 0) {
-        return allComments;
-      } else {
-        return Promise.resolve($.get(url + '/comments')).then(function(moreComments) {
-          return Promise.all(moreComments.map(renderBodyMarkdown)).then(function(comments) {
-            for (var i=0; i < comments.length; i++) {
-              allComments.push(comments[i]);
-            }
-            COMMENT_CACHE[url] = allComments;
-            return allComments
-          });
-        });
-      }
-    });
+  return Promise.resolve($.ajax({
+    type: "GET",
+    url: 'https://api.github.com/repos/' + repo + '/issues/' + issue + '/comments',
+    headers: {
+      'Accept': 'application/vnd.github.v3.html+json'
+    }
+  }))
 }
 
 function getMeta(name) {
