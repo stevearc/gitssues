@@ -12,13 +12,28 @@ var fetchAllComments = function(repo, issue) {
       fulfill(COMMENT_CACHE[key]);
     });
   }
+  var url = 'https://api.github.com/repos/' + repo + '/issues/' + issue;
   return Promise.resolve($.ajax({
     type: "GET",
-    url: 'https://api.github.com/repos/' + repo + '/issues/' + issue + '/comments',
+    url: url,
     headers: {
       'Accept': 'application/vnd.github.v3.html+json'
     }
-  }))
+  })).then(function(issue) {
+    if (issue.comments === 0) {
+      return [issue];
+    }
+    return Promise.resolve($.ajax({
+      type: "GET",
+      url: url + '/comments',
+      headers: {
+        'Accept': 'application/vnd.github.v3.html+json'
+      }
+    })).then(function(comments) {
+      comments.unshift(issue);
+      return comments;
+    })
+  })
 }
 
 function getMeta(name) {
